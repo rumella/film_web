@@ -1,9 +1,9 @@
 $(document).ready(function () {
-    let movieList = []; // Aranan filmleri burada saklayacağız
+    let movieList = []; // API'den aranan filmleri burada saklayacağız
 
-    // Film arama
+    // 🎬 Film Arama
     $('#search_movie').click(function () {
-        var movieName = $('#movie_name').val();
+        const movieName = $('#movie_name').val();
 
         $.ajax({
             url: "https://api.themoviedb.org/3/search/movie",
@@ -13,20 +13,21 @@ $(document).ready(function () {
                 query: movieName
             },
             success: function (response) {
-                var movies = response.results;
-                movieList = []; // Her aramada önceki listeyi temizle
-                var output = '';
+                const movies = response.results;
+                movieList = [];
+                let output = '';
 
                 movies.forEach(function (movie, index) {
-                    movieList.push(movie); // Listeye ekle
+                    movieList.push(movie);
 
-                    // Poster URL oluşturuluyor
-                    var posterUrl = movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : '../assets/placeholder_poster.png';
+                    const posterUrl = movie.poster_path
+                        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+                        : '../assets/placeholder_poster.png';
 
                     output += `
                         <div class="movie-grid-item" style="margin-bottom: 20px;">
-                            <img src="${posterUrl}" alt="${movie.title}" style="width:100px; height:auto; float:left; margin-right: 10px;"></br>
-                            <p><strong>${movie.title}</strong></br> (${movie.release_date})</p></br>
+                            <img src="${posterUrl}" alt="${movie.title}" style="width:100px; height:auto; float:left; margin-right: 10px;"><br>
+                            <p><strong>${movie.title}</strong><br> (${movie.release_date})</p><br>
                             <button class="add_movie" data-index="${index}">Ekle</button>
                         </div>
                     `;
@@ -34,12 +35,7 @@ $(document).ready(function () {
 
                 $('#movie_results').html(output);
 
-                // Eğer içerik varsa, görünür yap ve stil ekle
-                if ($('#movie_results').html().trim() !== '') {
-                    $('#movie_results').addClass('show');
-                } else {
-                    $('#movie_results').removeClass('show');
-                }
+                $('#movie_results').toggleClass('show', $('#movie_results').html().trim() !== '');
             },
             error: function (xhr, status, error) {
                 console.log("Hata: " + error);
@@ -47,7 +43,7 @@ $(document).ready(function () {
         });
     });
 
-    // Film ekleme
+    // ➕ Film Ekleme
     $(document).on('click', '.add_movie', function () {
         const index = $(this).data('index');
         const movieData = movieList[index];
@@ -58,26 +54,26 @@ $(document).ready(function () {
             data: {
                 movie_data: JSON.stringify(movieData)
             },
-            success: function (response) {
+            success: function () {
                 alert("Film başarıyla eklendi!");
                 location.reload();
             },
-            error: function (xhr, status, error) {
+            error: function () {
                 alert("Film eklenirken bir hata oluştu.");
             }
         });
     });
 
-    // İzlenen filmleri gösterme
+    // 📺 İzlenen Filmleri Listele
     function displayWatchedMovies() {
-        let watchedMoviesHtml = '<h2>İzlediğiniz Filmler</h2>';
+        let html = '<h2>İzlediğiniz Filmler</h2>';
 
         if (moviesFromPHP.length > 0) {
             moviesFromPHP.forEach(function (movie, index) {
-                const posterUrl = "https://image.tmdb.org/t/p/w500" + movie.poster_path;
-                const overview = movie.overview ? movie.overview : "Açıklama mevcut değil.";
+                const posterUrl = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
+                const overview = movie.overview || "Açıklama mevcut değil.";
 
-                watchedMoviesHtml += `
+                html += `
                     <div class="movie">
                         <img src="${posterUrl}" alt="${movie.title}">
                         <h3>${movie.title}</h3>
@@ -85,20 +81,29 @@ $(document).ready(function () {
                         <p><strong>Puan:</strong> ${movie.vote_average}</p>
                         <p><strong>Açıklama:</strong> ${overview}</p>
                         <button class="remove-movie-btn" data-index="${index}">Sil</button>
+                        <button class="comment-movie-btn" data-index="${index}">Yorum Yap</button>
                     </div>
                 `;
             });
         } else {
-            watchedMoviesHtml += '<p>Henüz izlediğiniz film yok.</p>';
+            html += '<p>Henüz izlediğiniz film yok.</p>';
         }
 
-        $('#watched_movies').html(watchedMoviesHtml);
+        $('#watched_movies').html(html);
     }
 
-    // Sayfa yüklendiğinde izlenen filmleri göster
     displayWatchedMovies();
 
-    // Film silme
+    // 💬 Yorum Sayfasına Yönlendir
+    $(document).on('click', '.comment-movie-btn', function () {
+        const movieIndex = $(this).data('index');
+        const movieId = moviesFromPHP[movieIndex].id;
+
+        // Yorum formu ayrı bir sayfada açılıyor
+        window.location.href = `add_comment_page.php?movie_id=${movieId}`;
+    });
+
+    // ❌ Film Silme
     $(document).on('click', '.remove-movie-btn', function () {
         const movieIndex = $(this).data('index');
         const movieToRemove = moviesFromPHP[movieIndex];
@@ -110,20 +115,16 @@ $(document).ready(function () {
                 movie_id: movieToRemove.id
             },
             success: function (response) {
-                console.log("Film silme cevabı:", response);  // Silme cevabını konsola yazdırıyoruz
-                const res = JSON.parse(response); // JSON cevabını parse et
+                const res = JSON.parse(response);
                 if (res.success) {
                     alert('Film başarıyla silindi');
-                    // Silinen filmi array'den çıkaralım
                     moviesFromPHP.splice(movieIndex, 1);
-                    // Sayfayı yeniden render edelim
                     displayWatchedMovies();
                 } else {
                     alert('Film silinemedi: ' + res.message);
                 }
             },
-            error: function (xhr, status, error) {
-                console.log("Film silme hata:", error);  // Silme sırasında oluşan hatayı konsola yazdırıyoruz
+            error: function () {
                 alert('Bir hata oluştu');
             }
         });
