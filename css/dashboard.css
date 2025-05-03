@@ -1,0 +1,73 @@
+/* Sayfa margin ve padding'ini sıfırla */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#movie_results.show {
+    padding: 20px; /* Filmlerle ekran kenarı arasına boşluk ekledik */
+    margin-top: 20px;
+}
+
+.movie-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(20vw, 1fr));
+    gap: 20px;
+    margin: 0; /* Ekranın tam kenarına oturmasını sağla */
+}
+
+.movie-grid-item {
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.movie-grid-item img {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+}
+
+/* Watched movies kısmı için düzenlemeler */
+#watched_movies {
+    display: flex;
+    flex-direction: column; /* Elemanları alt alta sıralar */
+    gap: 15px; /* Elemanlar arasına boşluk ekler */
+    padding: 8px; /* Çerçeve ile içeriğin arasında boşluk bırakır */
+    margin: 5px; /* Çerçeveye olan mesafeyi artırır */
+    box-sizing: border-box; /* Padding ve margin içeriği etkilemesin diye */
+}
+
+/* Her film bloğu için düzenlemeler */
+#watched_movies .movie {
+    background-color: #f0f0f0; /* Film kartının arka plan rengi */
+    padding: 8px; /* İçerik için boşluk */
+    border-radius: 8px; /* Köşe yuvarlama */
+    border: 1px solid #ddd; /* Hafif bir sınır */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Hafif gölge efekti */
+}
+
+/* Resim ve yazılar arasındaki mesafeyi ayarla */
+#watched_movies .movie img {
+    max-width: 100px; /* Resmin genişliği */
+    margin-right: 15px; /* Resim ile yazılar arasındaki boşluk */
+    float: left;
+    border-radius: 8px;
+}
+
+/* Film başlığı ve açıklamaları için yazı düzenlemeleri */
+#watched_movies .movie h3 {
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+#watched_movies .movie p {
+    margin: 5px 0;
+    font-size: 1em;
+    color: #333;
+}
