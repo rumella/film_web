@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="placeholder_poster.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Giriş Yap</title>
+  <link rel="stylesheet" href="style.css" />
+  
+</head>
+<body>
+  <section>
+    <div class="container">
+
+
+      <!-- Giriş Formu -->
+      <div class="form-container signinbox">
+        <div class="imgbox">
+          <img src="images/Download Secure access with a password in the form of a web notification on the Internet, authorization technologies for free.jpeg" alt="" />
+        </div>
+        <div class="formbox">
+          <form action="../php/login.php" method="POST" >
+            
+             <h2>Tekrar Hoş Geldiniz</h2>
+            <h2 class="text-center"></h2> <h2>Giriş yap</h2>
+            <input type="text" name="input" placeholder="Kullanıcı adı" required />
+            <br>
+            <input type="password" id="password" name="password" placeholder="Parola" required />
+            
+            <br>
+            <input type="submit" value="Giriş" />
+            
+            <p style="text-align:center; margin-top: 20px;">
+              Giriş yapmakta sorun mu yaşıyorsunuz?
+              <br>
+              <a href="iletisim/iletisim.html" style="color: #4539f1; font-weight: bold; text-decoration: none;">
+                Bizimle iletişime geçin
+              </a>.
+            </p>
+            
+            <p class="singup">Bir hesabın yok mu? <a href="register.html">Üye ol</a></p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+  <button class="back-button" onclick="window.location.href='../index.html'"><- </button>
+
+  <script>
+    // Parolayı gösterme ve gizleme fonksiyonu
+    let togglePassword = document.querySelector("#toggle-password");
+    let passwordField = document.querySelector("#password");
+
+    togglePassword.addEventListener("click", function () {
+      // Eğer şifre şu an görünüyorsa, gizle; gizliyse göster
+      if (passwordField.type === "password") {
+        passwordField.type = "text";
+        togglePassword.innerText = "HIDE";  // Butonun metnini değiştir
+      } else {
+        passwordField.type = "password";
+        togglePassword.innerText = "SHOW";  // Butonun metnini tekrar değiştir
+      }
+    });
+  </script>
+</body>
+</html>
+
