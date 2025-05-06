@@ -1,0 +1,128 @@
+let currentPage = 1;
+
+$(document).ready(function () {
+    loadGenres();
+    loadYears();
+    loadMovies(currentPage);
+    loadCarousel();
+
+    $('#prevBtn').on('click', function () {
+        if (currentPage > 1) {
+            currentPage--;
+            loadMovies(currentPage);
+            window.scrollTo(0, 0);
+        }
+    });
+
+    $('#nextBtn').on('click', function () {
+        currentPage++;
+        loadMovies(currentPage);
+        window.scrollTo(0, 0);
+    });
+
+    $('#genreFilter, #yearFilter, #ratingFilter').on('change', function () {
+        currentPage = 1;
+        loadMovies(currentPage);
+    });
+});
+
+function loadGenres() {
+    $.getJSON('php/get_api_key.php', function (response) {
+        const apiKey = response.apiKey;
+        $.getJSON(`https://api.themoviedb.org/3/genre/movie/list?api_key=${apiKey}&language=tr`, function (data) {
+            data.genres.forEach(function (genre) {
+                $('#genreFilter').append(`<option value="${genre.id}">${genre.name}</option>`);
+            });
+        });
+    });
+}
+
+function loadYears() {
+    const currentYear = new Date().getFullYear();
+    for (let year = currentYear; year >= 1950; year--) {
+        $('#yearFilter').append(`<option value="${year}">${year}</option>`);
+    }
+}
+
+function loadMovies(page = 1) {
+    const genre = $('#genreFilter').val();
+    const year = $('#yearFilter').val();
+    const rating = $('#ratingFilter').val();
+    const randomPage = Math.floor(Math.random() * 20) + 1;
+
+    $.getJSON('php/get_api_key.php', function (response) {
+        const apiKey = response.apiKey;
+        let url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=tr&sort_by=popularity.desc&page=${randomPage}`;
+
+        if (genre) url += `&with_genres=${genre}`;
+        if (year) url += `&primary_release_year=${year}`;
+        if (rating) url += `&vote_average.gte=${rating}`;
+
+        $.getJSON(url, function (data) {
+            $('#movieGrid').empty();
+            data.results.forEach(function (movie) {
+                const poster = movie.poster_path
+                    ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+                    : 'https://via.placeholder.com/500x750?text=No+Image';
+
+                const movieCard = $(`
+                    <div class="col-6 col-md-3">
+                        <div class="card h-100">
+                            <img src="${poster}" class="card-img-top" alt="${movie.title}">
+                            <div class="card-body">
+                                <h5 class="card-title">${movie.title}</h5>
+                            </div>
+                        </div>
+                    </div>
+                `);
+
+                movieCard.on('click', function () {
+                    window.location.href = `php/movie_detail.php?id=${movie.id}`;
+                });
+
+                $('#movieGrid').append(movieCard);
+            });
+        });
+    });
+}
+
+function loadCarousel() {
+    $.getJSON('php/get_api_key.php', function (response) {
+        const apiKey = response.apiKey;
+        const url = `https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}&language=tr&page=1`;
+
+        $.getJSON(url, function (data) {
+            $('#carouselContent').empty();
+            data.results.slice(0, 5).forEach(function (movie, index) {
+                const poster = movie.backdrop_path
+                    ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
+                    : 'https://via.placeholder.com/1280x720?text=No+Image';
+
+                    const carouselItem = `
+                    <div class="carousel-item ${index === 0 ? 'active' : ''}">
+                        <img src="${poster}" class="d-block w-100" alt="${movie.title}">
+                        <div class="carousel-caption d-block">
+                            <h5>${movie.title}</h5>
+                            <p>${movie.overview}</p>
+                        </div>
+                    </div>
+                `;
+                $('#carouselContent').append(carouselItem);
+            });
+
+            // Mobilde açıklama göster/gizle
+            document.querySelectorAll('.carousel-item').forEach(item => {
+                item.addEventListener('click', function () {
+                    if (window.innerWidth <= 768) {
+                        const caption = this.querySelector('.carousel-caption');
+                        if (caption) {
+                            const isVisible = caption.style.visibility === 'visible';
+                            caption.style.visibility = isVisible ? 'hidden' : 'visible';
+                            caption.style.opacity = isVisible ? '0' : '1';
+                        }
+                    }
+                });
+            });
+        });
+    });
+}
