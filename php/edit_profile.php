@@ -16,27 +16,22 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 if (!$user) die("Kullanıcı bulunamadı!");
 
-$toast = [];
-
-//fotoğraf silme
+// FOTOĞRAF SİLME
 if (isset($_POST['delete_photo'])) {
     if (!empty($user['profile_photo']) && file_exists("../uploads/" . $user['profile_photo'])) {
         unlink("../uploads/" . $user['profile_photo']);
-
         $update = $conn->prepare("UPDATE clients SET profile_photo = '' WHERE id = ?");
         $update->bind_param("i", $user_id);
         $update->execute();
-
         $_SESSION['toast'] = ["Fotoğraf silindi.", "success"];
     } else {
-        $_SESSION['toast'] = ["Fotoğrafınız zaten silinmiş.", "error"];
+        $_SESSION['toast'] = ["Fotoğrafınız zaten silinmiş.", "danger"];
     }
-
     header("Location: edit_profile.php");
     exit();
 }
 
-// FOTOĞRAF YÜKLEME (önce eskiyi sil, sonra sadece jpeg/png kabul et)
+// FOTOĞRAF YÜKLEME
 if (isset($_POST['upload_photo'])) {
     if (isset($_FILES['profile_photo']) && $_FILES['profile_photo']['error'] === 0) {
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -44,9 +39,8 @@ if (isset($_POST['upload_photo'])) {
         finfo_close($finfo);
 
         if (!in_array($mime, ['image/jpeg', 'image/png'])) {
-            $_SESSION['toast'] = ["Sadece JPEG ve PNG formatındaki resimler yüklenebilir!", "error"];
+            $_SESSION['toast'] = ["Sadece JPEG ve PNG formatındaki resimler yüklenebilir!", "danger"];
         } else {
-            // Eskiyi sil
             if (!empty($user['profile_photo']) && file_exists("../uploads/" . $user['profile_photo'])) {
                 unlink("../uploads/" . $user['profile_photo']);
             }
@@ -62,13 +56,14 @@ if (isset($_POST['upload_photo'])) {
             $_SESSION['toast'] = ["Fotoğraf başarıyla güncellendi.", "success"];
         }
     } else {
-        $_SESSION['toast'] = ["Dosya Seçmediniz!", "error"];
+        $_SESSION['toast'] = ["Dosya seçmediniz!", "danger"];
     }
 
     header("Location: edit_profile.php");
     exit();
 }
-//Bilgi Güncelleme
+
+// PROFİL BİLGİ GÜNCELLEME
 if (isset($_POST['update_profile'])) {
     $name = trim($_POST['name']);
     $surname = trim($_POST['surname']);
@@ -78,15 +73,12 @@ if (isset($_POST['update_profile'])) {
     $params = [];
     $types = "";
 
-    $updates = [];
-
-    // Mevcut değerlerle karşılaştır
     if (!empty($name) && $name !== $user['name']) {
         $fields[] = "name = ?";
         $params[] = $name;
         $types .= "s";
     } elseif (!empty($name) && $name === $user['name']) {
-        $_SESSION['toast'] = ["Yeni ad mevcut ad ile aynı olamaz!", "error"];
+        $_SESSION['toast'] = ["Yeni ad mevcut ad ile aynı olamaz!", "danger"];
         header("Location: edit_profile.php");
         exit();
     }
@@ -96,20 +88,19 @@ if (isset($_POST['update_profile'])) {
         $params[] = $surname;
         $types .= "s";
     } elseif (!empty($surname) && $surname === $user['surname']) {
-        $_SESSION['toast'] = ["Yeni soyad mevcut soyad ile aynı olamaz!", "error"];
+        $_SESSION['toast'] = ["Yeni soyad mevcut soyad ile aynı olamaz!", "danger"];
         header("Location: edit_profile.php");
         exit();
     }
 
     if (!empty($email) && $email !== $user['email']) {
-        // E-posta başka kullanıcıda var mı kontrol et
         $check = $conn->prepare("SELECT id FROM clients WHERE email = ? AND id != ?");
         $check->bind_param("si", $email, $user_id);
         $check->execute();
         $check->store_result();
 
         if ($check->num_rows > 0) {
-            $_SESSION['toast'] = ["Bu e-posta adresi zaten kullanılıyor!", "error"];
+            $_SESSION['toast'] = ["Bu e-posta adresi zaten kullanılıyor!", "danger"];
             header("Location: edit_profile.php");
             exit();
         }
@@ -118,7 +109,7 @@ if (isset($_POST['update_profile'])) {
         $params[] = $email;
         $types .= "s";
     } elseif (!empty($email) && $email === $user['email']) {
-        $_SESSION['toast'] = ["Yeni e-posta mevcut e-posta ile aynı olamaz!", "error"];
+        $_SESSION['toast'] = ["Yeni e-posta mevcut e-posta ile aynı olamaz!", "danger"];
         header("Location: edit_profile.php");
         exit();
     }
@@ -134,7 +125,7 @@ if (isset($_POST['update_profile'])) {
 
         $_SESSION['toast'] = ["Profil bilgileri güncellendi.", "success"];
     } else {
-        $_SESSION['toast'] = ["Güncellenecek bir bilgi girilmedi.", "error"];
+        $_SESSION['toast'] = ["Güncellenecek bir bilgi girilmedi.", "danger"];
     }
 
     header("Location: edit_profile.php");
@@ -148,11 +139,11 @@ if (isset($_POST['update_password'])) {
     $confirm = $_POST['confirm_password'];
 
     if (!password_verify($current, $user['password'])) {
-        $_SESSION['toast'] = ["Mevcut şifre yanlış!", "error"];
+        $_SESSION['toast'] = ["Mevcut şifre yanlış!", "danger"];
     } elseif ($new !== $confirm) {
-        $_SESSION['toast'] = ["Yeni şifreler uyuşmuyor!", "error"];
+        $_SESSION['toast'] = ["Yeni şifreler uyuşmuyor!", "danger"];
     } elseif (password_verify($new, $user['password'])) {
-        $_SESSION['toast'] = ["Yeni şifreniz ile eski şifreniz aynı olamaz!", "error"];
+        $_SESSION['toast'] = ["Yeni şifreniz ile eski şifreniz aynı olamaz!", "danger"];
     } else {
         $hashed = password_hash($new, PASSWORD_DEFAULT);
         $update = $conn->prepare("UPDATE clients SET password = ? WHERE id = ?");
@@ -165,29 +156,26 @@ if (isset($_POST['update_password'])) {
     exit();
 }
 
-
 // HESAP SİLME
 if (isset($_POST['delete_account'])) {
     $current_password = $_POST['current_password'] ?? '';
 
     if (empty($current_password)) {
-        $_SESSION['toast'] = ["Lütfen mevcut şifrenizi girin.", "error"];
+        $_SESSION['toast'] = ["Lütfen mevcut şifrenizi girin.", "danger"];
         header("Location: edit_profile.php");
         exit();
     }
 
     if (!password_verify($current_password, $user['password'])) {
-        $_SESSION['toast'] = ["Mevcut şifre yanlış!", "error"];
+        $_SESSION['toast'] = ["Mevcut şifre yanlış!", "danger"];
         header("Location: edit_profile.php");
         exit();
     }
 
-    // Profil fotoğrafını da sil (varsa)
     if (!empty($user['profile_photo']) && file_exists("../uploads/" . $user['profile_photo'])) {
         unlink("../uploads/" . $user['profile_photo']);
     }
 
-    // Hesabı sil
     $delete = $conn->prepare("DELETE FROM clients WHERE id = ?");
     $delete->bind_param("i", $user_id);
 
@@ -197,7 +185,7 @@ if (isset($_POST['delete_account'])) {
         header("Location: ../index.php");
         exit();
     } else {
-        $_SESSION['toast'] = ["Profil silinemedi!", "error"];
+        $_SESSION['toast'] = ["Profil silinemedi!", "danger"];
         header("Location: edit_profile.php");
         exit();
     }
@@ -212,47 +200,6 @@ if (isset($_POST['delete_account'])) {
     <title>Profili Düzenle</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/edit_profile.css">
-    <style>
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: bold;
-            color: white;
-            box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
-            animation: fadeInOut 4s ease-in-out;
-            max-width: 400px;
-            width: auto;
-            text-align: center;
-            background-color: #333;
-            display: inline-flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-        }
-
-        .toast.success {
-            background-color: #28a745;
-        }
-
-        .toast.error {
-            background-color: #dc3545;
-        }
-
-        .toast .close-btn {
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: bold;
-            background: transparent;
-            border: none;
-            color: white;
-            margin-left: 10px;
-        }
-    </style>
 </head>
 
 <body>
@@ -262,16 +209,30 @@ if (isset($_POST['delete_account'])) {
     include 'navbar.php';
     ?>
 
-    <?php if (isset($_SESSION['toast'])): ?>
-        <?php
-        list($toast, $toast_type) = $_SESSION['toast'];
+<?php if (isset($_SESSION['toast'])): ?>
+    <?php
+        list($toast_message, $toast_type) = $_SESSION['toast'];
         unset($_SESSION['toast']);
-        ?>
-        <div class="toast <?php echo $toast_type; ?>">
-            <?php echo htmlspecialchars($toast); ?>
-            <span class="toast-close" onclick="this.parentElement.remove()">×</span>
+
+        $valid_types = ['success', 'danger', 'warning', 'info', 'primary', 'secondary', 'dark', 'light'];
+        if (!in_array($toast_type, $valid_types)) {
+            $toast_type = 'primary';
+        }
+    ?>
+    <div class="position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index: 1055; width: 30%;">
+        <div id="liveToast" class="toast show w-100 text-white bg-<?php echo $toast_type; ?> border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="toast-body">
+                    <?php echo htmlspecialchars($toast_message); ?>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Kapat"></button>
+            </div>
         </div>
-    <?php endif; ?>
+    </div>
+<?php endif; ?>
+
+
+
     <div class="edit-profile-container">
         <form method="POST" enctype="multipart/form-data">
             <div class="left-column">
@@ -290,13 +251,10 @@ if (isset($_POST['delete_account'])) {
             <div class="middle-column">
                 <label>Ad:</label>
                 <input type="text" name="name" placeholder="Adınızı girin">
-
                 <label>Soyad:</label>
                 <input type="text" name="surname" placeholder="Soyadınızı girin">
-
                 <label>E-posta:</label>
                 <input type="email" name="email" placeholder="E-posta adresinizi girin">
-
                 <button type="submit" name="update_profile" class="btn">Profili Güncelle</button>
             </div>
 
@@ -314,7 +272,6 @@ if (isset($_POST['delete_account'])) {
                     <span onclick="togglePassword('confirm_password', this)" class="toggle-eye">👁️</span>
                 </div>
                 <button type="submit" name="update_password" class="btn">Şifreyi Güncelle</button>
-
                 <button type="submit" name="delete_account" class="btn btn-danger" onclick="return confirm('Hesabınızı silmek istediğinize emin misiniz?');">Profili Sil</button>
             </div>
         </form>
@@ -340,7 +297,18 @@ if (isset($_POST['delete_account'])) {
                 el.textContent = "👁️";
             }
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const toastEl = document.getElementById('liveToast');
+            if (toastEl) {
+                const toast = new bootstrap.Toast(toastEl, {
+                    delay: 4000
+                });
+                toast.show();
+            }
+        });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

@@ -47,7 +47,7 @@ $result = $conn->query($sql);
 <body>
     <?php
     $navbarTitle = "Panel";
-    $navbarItems = ['home', 'dashboard', 'profile', 'edit_profile', 'logout'];
+    $navbarItems = ['home', 'dashboard', 'add_comment', 'profile', 'edit_profile', 'logout'];
     include 'navbar.php';
     ?>
     <div class="container mt-5">

@@ -43,6 +43,11 @@ $navbarItems = $navbarItems ?? [];
         padding: 0.3rem;
     }
 
+    .navbar-title h3 {
+        cursor: default;
+    }
+
+
     .dropdown-toggle {
         display: none;
         font-size: 1.5rem;
@@ -90,6 +95,7 @@ $navbarItems = $navbarItems ?? [];
         <h3 style="margin:0;"><?= htmlspecialchars($navbarTitle) ?></h3>
     </div>
 
+
     <ul class="navbar-center">
         <?php if (in_array('search', $navbarItems)): ?>
             <li>
@@ -101,9 +107,11 @@ $navbarItems = $navbarItems ?? [];
 
     <?php
     $isFromRoot = basename($_SERVER['PHP_SELF']) === 'index.php';
+    $currentPage = basename($_SERVER['PHP_SELF']); // Şu anki sayfa
     $prefix = $isFromRoot ? 'php/' : '';
-    $showPanel = isset($_SESSION['authority_id']) && $_SESSION['authority_id'] == 1;
+    $showPanel = isset($_SESSION['authority_id']) && $_SESSION['authority_id'] == 1 && $currentPage !== 'admin_panel.php';
     ?>
+
 
     <ul class="navbar-left">
         <?php if ($showPanel): ?>
@@ -169,15 +177,15 @@ $navbarItems = $navbarItems ?? [];
 </nav>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
         const toggleBtn = document.getElementById("dropdownToggle");
         const dropdownMenu = document.getElementById("dropdownMenu");
 
-        toggleBtn.addEventListener("click", function () {
+        toggleBtn.addEventListener("click", function() {
             dropdownMenu.style.display = (dropdownMenu.style.display === "block") ? "none" : "block";
         });
 
-        document.addEventListener("click", function (event) {
+        document.addEventListener("click", function(event) {
             if (!toggleBtn.contains(event.target) && !dropdownMenu.contains(event.target)) {
                 dropdownMenu.style.display = "none";
             }
