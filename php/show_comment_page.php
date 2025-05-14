@@ -61,6 +61,23 @@ if ($filterMovieId) {
 $commentQuery->execute();
 $comments = $commentQuery->get_result()->fetch_all(MYSQLI_ASSOC);
 
+$replyCounts = [];
+$replyStmt = $conn->prepare("SELECT comment_id, COUNT(*) as count FROM replies WHERE client_id = ? GROUP BY comment_id");
+$replyStmt->bind_param("i", $userId);
+$replyStmt->execute();
+$replyResults = $replyStmt->get_result();
+while ($row = $replyResults->fetch_assoc()) {
+    $replyCounts[$row['comment_id']] = $row['count'];
+}
+
+$allReplies = [];
+$replyFetchStmt = $conn->prepare("SELECT replies.*, clients.name FROM replies JOIN clients ON replies.client_id = clients.id ORDER BY replies.created_at ASC ");
+$replyFetchStmt->execute();
+$replyResult = $replyFetchStmt->get_result();
+while ($replyRow = $replyResult->fetch_assoc()) {
+    $allReplies[$replyRow['comment_id']][] = $replyRow;
+}
+
 $movieDetails = [];
 foreach ($comments as $comment) {
     $movieId = $comment['movie_id'];
@@ -92,7 +109,9 @@ foreach ($comments as $comment) {
     <meta charset="UTF-8">
     <title>Yorumlar</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script>const apiKey = "<?php echo $apiKey; ?>";</script>
+    <script>
+        const apiKey = "<?php echo $apiKey; ?>";
+    </script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -168,6 +187,114 @@ foreach ($comments as $comment) {
             border-radius: 4px;
             z-index: 1;
         }
+
+        @media (max-width: 768px) {
+            body {
+                margin: 0;
+            }
+
+            .search-area,
+            .comment-box {
+                background: #fff;
+                padding: 20px;
+                margin: 10px auto;
+                width: 100%;
+                max-width: 100%;
+                border-radius: 8px;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+                overflow-wrap: break-word;
+            }
+
+            .movie {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+                position: relative;
+                padding-bottom: 30px;
+                width: 100%;
+            }
+
+            .movie img {
+                width: 100%;
+                height: auto;
+                border-radius: 4px;
+            }
+
+            .movie-info {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                word-wrap: break-word;
+                width: 100%;
+                margin-left: 0;
+                padding-left: 0;
+                box-sizing: border-box;
+            }
+
+            .edit-button,
+            .delete-button,
+            .reply-toggle {
+                padding: 8px 16px;
+                font-size: 1rem;
+                margin-top: 10px;
+                display: inline-block;
+                border-radius: 4px;
+                border: none;
+                width: 100%;
+                box-sizing: border-box;
+                text-align: center;
+            }
+
+            .edit-button {
+                background-color: #007bff;
+                color: white;
+            }
+
+            .delete-button {
+                background-color: red;
+                color: white;
+            }
+
+            .reply-toggle {
+                background-color: #28a745;
+                color: white;
+                margin-left: 0;
+            }
+
+            .comment-date {
+                position: absolute;
+                bottom: 0px;
+                right: 0px;
+                font-size: 0.9rem;
+                background-color: rgba(255, 255, 255, 0.85);
+                padding: 4px 0px;
+                border-radius: 4px;
+                z-index: 1;
+            }
+
+            textarea {
+                width: 100%;
+                resize: vertical;
+                box-sizing: border-box;
+            }
+
+            /* 🔙 Girinti geri getiriliyor — eski stil korunuyor */
+            .movie .mt-3.ms-4 {
+                margin-left: 1.5rem !important;
+                padding-left: 1rem !important;
+            }
+
+            .movie .mt-3.ms-4 .border-start {
+                border-left: 1px solid #ccc;
+                padding-left: 1rem !important;
+            }
+
+            .movie .mt-3.ms-4 p {
+                margin-left: 1rem !important;
+                padding-left: 0 !important;
+            }
+        }
     </style>
 </head>
 
@@ -205,13 +332,34 @@ foreach ($comments as $comment) {
                             <input type="hidden" name="comment_id" value="<?php echo $comment['id']; ?>">
                             <button type="submit" class="delete-button">Sil</button>
                         </form>
-
                         <?php if ($userId == $comment['client_id']): ?>
                             <a href="edit_comment.php?comment_id=<?php echo $comment['id']; ?>" class="edit-button">Düzenle</a>
                         <?php endif; ?>
                     <?php endif; ?>
-                </div>
 
+                    <?php if (!empty($allReplies[$comment['id']])): ?>
+                        <div class="mt-3">
+                            <strong>Cevaplar:</strong>
+                            <?php foreach ($allReplies[$comment['id']] as $reply): ?>
+                                <div class="border-start ps-3 mb-2">
+                                    <p class="mb-1"><strong><?php echo htmlspecialchars($reply['name']); ?>:</strong> <?php echo htmlspecialchars($reply['reply']); ?></p>
+                                    <small class="text-muted"><?php echo date('d.m.Y H:i', strtotime($reply['created_at'])); ?></small>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if ($userId && ($replyCounts[$comment['id']] ?? 0) < 5): ?>
+                        <div class="mt-2">
+                            <button class="btn btn-sm btn-outline-primary reply-toggle" data-id="<?php echo $comment['id']; ?>">Cevapla</button>
+                            <form method="POST" action="save_reply.php" class="reply-form mt-2 d-none" id="reply-form-<?php echo $comment['id']; ?>">
+                                <input type="hidden" name="comment_id" value="<?php echo $comment['id']; ?>">
+                                <textarea name="reply_text" class="form-control mb-2" placeholder="Cevabınızı yazın..." required></textarea>
+                                <button type="submit" class="btn btn-success btn-sm">Gönder</button>
+                            </form>
+                        </div>
+                    <?php endif; ?>
+                </div>
                 <div class="comment-date text-muted">
                     <?php echo date('d.m.Y H:i', strtotime($comment['created_at'])); ?>
                 </div>
@@ -223,7 +371,7 @@ foreach ($comments as $comment) {
     <script>
         let movieList = [];
 
-        $('#movie_name').on('input', function () {
+        $('#movie_name').on('input', function() {
             const query = $(this).val();
             if (query.length < 2) {
                 $('#movieSuggestions').html('');
@@ -238,7 +386,7 @@ foreach ($comments as $comment) {
                     language: "tr-TR",
                     query: query
                 },
-                success: function (response) {
+                success: function(response) {
                     movieList = response.results;
                     let suggestions = '';
                     response.results.slice(0, 5).forEach((movie) => {
@@ -249,14 +397,20 @@ foreach ($comments as $comment) {
             });
         });
 
-        $(document).on('click', '#movieSuggestions div', function () {
+        $(document).on('click', '#movieSuggestions div', function() {
             const movieId = $(this).data('id');
             const title = $(this).data('title');
             $('#selected_movie_id').val(movieId);
             $('#selected_movie_title').text(title + " seçildi.");
             $('#movieSuggestions').html('');
         });
+
+        $(document).on('click', '.reply-toggle', function() {
+            const id = $(this).data('id');
+            $(`#reply-form-${id}`).toggleClass('d-none');
+        });
     </script>
 
 </body>
+
 </html>

@@ -1,27 +1,51 @@
-let currentPage = 1;
+let currentPage = 1; // Başlangıçta sayfa 1
 
 $(document).ready(function () {
+    // Sayfa yenilendiğinde Adult Toggle'ın durumu kaydedilsin
+    if (localStorage.getItem('showAdult') === 'true') {
+        $('#adultToggle').prop('checked', true); // Toggle'ı açık yap
+    } else {
+        $('#adultToggle').prop('checked', false); // Toggle'ı kapalı yap
+    }
+
     loadGenres();
     loadYears();
-    loadMovies(currentPage);
+    loadMovies(currentPage);  // İlk sayfa yükleme
     loadCarousel();
 
+    // Previous butonu
     $('#prevBtn').on('click', function () {
         if (currentPage > 1) {
             currentPage--;
-            loadMovies(currentPage);
+            loadMovies(currentPage); // Sayfa bir geri git
             window.scrollTo(0, 0);
         }
     });
 
+    // Next butonu
     $('#nextBtn').on('click', function () {
         currentPage++;
-        loadMovies(currentPage);
+        loadMovies(currentPage); // Sayfa bir ileri git
         window.scrollTo(0, 0);
     });
 
+    // Random butonu
+    $('#randomBtn').on('click', function () {
+        currentPage = Math.floor(Math.random() * 20) + 1; // Random sayfa numarası oluştur
+        loadMovies(currentPage); // Random filmleri yükle
+        window.scrollTo(0, 0);
+    });
+
+    // Adult toggle durumunu değiştirdiğinde kaydet
+    $('#adultToggle').on('change', function () {
+        localStorage.setItem('showAdult', $(this).prop('checked'));
+        currentPage = 1; // Toggle değiştiğinde sayfayı 1'e al
+        loadMovies(currentPage);
+    });
+
+    // Filtreler değiştiğinde sayfayı 1'e sıfırla
     $('#genreFilter, #yearFilter, #ratingFilter, #yearRangeSwitch, #ratingRangeSwitch').on('change', function () {
-        currentPage = 1;
+        currentPage = 1; // Filtreler değiştiğinde sayfayı 1'e sıfırla
         loadMovies(currentPage);
     });
 });
@@ -48,13 +72,13 @@ function loadMovies(page = 1) {
     const genre = $('#genreFilter').val();
     const year = $('#yearFilter').val();
     const rating = $('#ratingFilter').val();
-    const yearRange = $('#yearRangeSwitch').is(':checked');     // true → sadece, false → e kadar
-    const ratingRange = $('#ratingRangeSwitch').is(':checked'); // true → sadece, false → e kadar
-    const randomPage = Math.floor(Math.random() * 20) + 1;
+    const yearRange = $('#yearRangeSwitch').is(':checked');
+    const ratingRange = $('#ratingRangeSwitch').is(':checked');
+    const showAdult = $('#adultToggle').is(':checked'); // Adult toggle durumu
 
     $.getJSON('php/get_api_key.php', function (response) {
         const apiKey = response.apiKey;
-        let url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=tr&sort_by=popularity.desc&page=${randomPage}`;
+        let url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=tr&page=${page}`; // page değişkenini kullanıyoruz
 
         if (genre) url += `&with_genres=${genre}`;
         if (year) {
@@ -72,14 +96,21 @@ function loadMovies(page = 1) {
             }
         }
 
+        // Adult içeriği kontrol et ve URL'ye ekle
+        url += `&include_adult=${showAdult}`;
+
         $.getJSON(url, function (data) {
             $('#movieGrid').empty();
-
+            //console.log(currentPage);
             data.results.forEach(function (movie) {
                 const movieRating = movie.vote_average;
                 const movieYear = movie.release_date ? parseInt(movie.release_date.split('-')[0]) : null;
 
-                // Ek güvenlik için client-side filtreleme:
+                // **Adult içerikleri kontrol et**:
+                // Eğer toggle kapalıysa (showAdult == false), adult içerik gelmesin
+                //console.log(`Movie: ${movie.title}, Adult: ${movie.adult}`); // Burada log ekliyoruz
+                if (showAdult === false && movie.adult === true) return;
+
                 if (rating) {
                     if (ratingRange && movieRating < rating) return;
                     if (!ratingRange && movieRating > rating) return;
@@ -94,7 +125,7 @@ function loadMovies(page = 1) {
                     ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
                     : 'assets/placeholder_poster.png';
 
-                const movieCard = $(`
+                const movieCard = $(` 
                     <div class="col-6 col-md-3">
                         <div class="card h-100">
                             <img src="${poster}" class="card-img-top" alt="${movie.title}">
@@ -127,7 +158,7 @@ function loadCarousel() {
                     ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
                     : 'assets/placeholder_poster.png';
 
-                const carouselItem = `
+                const carouselItem = ` 
                     <div class="carousel-item ${index === 0 ? 'active' : ''}">
                         <img src="${poster}" class="d-block w-100" alt="${movie.title}">
                         <div class="carousel-caption d-block">

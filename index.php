@@ -121,6 +121,14 @@
             color: white;
             font-size: 0.9rem;
         }
+
+        /* Flex düzeni ile her iki öğeyi hizala */
+        .form-check.form-switch {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px; /* Dropdown ile mesafe */
+        }
     </style>
 </head>
 
@@ -155,11 +163,15 @@
     <div class="container my-4">
         <div class="row g-3">
 
-            <!-- Tür Filtre -->
+            <!-- Tür Filtre + Adult Toggle -->
             <div class="col-sm-4">
                 <select class="form-select" id="genreFilter">
                     <option value="">Tür Seç</option>
                 </select>
+                <div class="form-check form-switch d-flex align-items-center mt-2">
+                    <input class="form-check-input" type="checkbox" id="adultToggle">
+                    <label class="form-check-label ms-2 switch-label" for="adultToggle">+18 içerikleri göster</label>
+                </div>
             </div>
 
             <!-- Yıl Filtre -->
@@ -202,12 +214,12 @@
         </div>
     </div>
 
-
     <!-- Film Grid -->
     <div class="container my-4">
         <div class="row g-4" id="movieGrid"></div>
         <div class="d-flex justify-content-between my-4">
             <button id="prevBtn" class="btn btn-secondary">Previous</button>
+            <button id="randomBtn" class="btn btn-secondary">Random</button>
             <button id="nextBtn" class="btn btn-primary">Next</button>
         </div>
     </div>
