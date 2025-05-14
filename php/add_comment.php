@@ -14,8 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $checkResult = $checkStmt->get_result();
     $row = $checkResult->fetch_assoc();
 
-    if ($row['count'] >= 2) {
-        echo json_encode(["success" => false, "message" => "Her filme en fazla 2 yorum yapabilirsiniz."]);
+    if ($row['count'] >= 1) {
+        echo json_encode(["success" => false, "message" => "Her filme en fazla 1 yorum yapabilirsiniz."]);
         $checkStmt->close();
         $conn->close();
         exit;
