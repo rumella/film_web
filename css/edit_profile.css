@@ -1,4 +1,6 @@
 body {
+    background-color: black;
+    color: whitesmoke;
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
@@ -10,6 +12,7 @@ body {
     padding: 3px 3px;
     max-width: 1400px;
     margin: auto;
+    flex-wrap: wrap; /* İçeriğin sarmasını sağla */
 }
 
 form {
@@ -17,6 +20,8 @@ form {
     gap: 50px;
     width: 100%;
     flex-wrap: wrap;
+    justify-content: space-between; /* Elementler arasında eşit boşluk bırak */
+    box-sizing: border-box;
 }
 
 .left-column,
@@ -24,7 +29,7 @@ form {
 .right-column {
     flex: 1;
     min-width: 250px;
-    background-color: #f8f8f8;
+    background-color: #1c1c1c;
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -74,6 +79,7 @@ input, select {
     border: 1px solid #ccc;
     margin-top: 5px;
     box-sizing: border-box;
+    background-color: #2b2b2b;
 }
 
 .btn {
@@ -134,14 +140,43 @@ input, select {
     user-select: none;
 }
 
+/* Responsive Adjustments for smaller screens */
 @media (max-width: 992px) {
     form {
         flex-direction: column;
+        gap: 20px; /* Daha fazla boşluk bırak */
     }
 
     .left-column,
     .middle-column,
     .right-column {
-        width: 100%;
+        width: 100%; /* Kolonların genişliği %100 olmalı */
+        min-width: unset; /* Min-width kısıtlamasını kaldır */
+        margin-bottom: 20px; /* Aralarına boşluk ekle */
+    }
+}
+
+@media (max-width: 768px) {
+    .photo-frame {
+        width: 100%; /* Fotoğraf alanını ekran genişliğine göre ayarla */
+        height: 200px; /* Fotoğraf alanı yüksekliğini belirle */
+    }
+
+    .left-column,
+    .middle-column,
+    .right-column {
+        padding: 15px; /* Küçük ekranlarda padding azalt */
+    }
+
+    label, input, select {
+        font-size: 0.9rem; /* Küçük ekranlarda font boyutunu küçült */
+    }
+
+    .btn {
+        font-size: 0.9rem; /* Buton boyutunu da küçük ekranlarda küçült */
+    }
+
+    .toast {
+        width: 80%; /* Toast mesajını daha geniş yap */
     }
 }

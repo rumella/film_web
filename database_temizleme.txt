@@ -1,0 +1,4 @@
+DELETE FROM anatable;
+ALTER TABLE anatable AUTO_INCREMENT = 1;
+
+// eğer bu yukarıdaki kodda tablo adını değiştirerek bütün tablolara uygularsan tabloları temizliyor ve AUTO_INCREMENT'i 1 ayarlıyor.

@@ -4,6 +4,8 @@ html, body {
     padding: 0;
     width: 100%;
     height: 100%;
+    background-color: #1c1c1c;
+    color: whitesmoke;
 }
 
 #movie_results.show {
@@ -18,20 +20,6 @@ html, body {
     margin: 0; /* Ekranın tam kenarına oturmasını sağla */
 }
 
-.movie-grid-item {
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    padding: 10px;
-    text-align: center;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-.movie-grid-item img {
-    width: 100%;
-    height: auto;
-    border-radius: 6px;
-}
-
 /* Watched movies kısmı için düzenlemeler */
 #watched_movies {
     display: flex;
@@ -44,7 +32,7 @@ html, body {
 
 /* Her film bloğu için düzenlemeler */
 #watched_movies .movie {
-    background-color: #f0f0f0; /* Film kartının arka plan rengi */
+    background-color: #2b2b2b; /* Film kartının arka plan rengi */
     padding: 8px; /* İçerik için boşluk */
     border-radius: 8px; /* Köşe yuvarlama */
     border: 1px solid #ddd; /* Hafif bir sınır */
@@ -69,5 +57,4 @@ html, body {
 #watched_movies .movie p {
     margin: 5px 0;
     font-size: 1em;
-    color: #333;
 }

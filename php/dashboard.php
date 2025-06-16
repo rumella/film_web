@@ -34,8 +34,8 @@ if ($result && $result->num_rows > 0) {
 <head>
     <meta charset="UTF-8">
     <title>Film Ekle</title>
-    <link rel="stylesheet" href="../css/dashboard.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/dashboard.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <!-- PHP'den JS'ye veri geçirme -->

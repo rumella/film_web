@@ -32,12 +32,18 @@ $result = $conn->query($sql);
     <title>Admin Paneli</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        body {
+            color: whitesmoke;
+            background-color: #1c1c1c;
+        }
         .table-container {
+            background-color: #212529;
             max-height: 500px;
             overflow-y: auto;
         }
         /* Yeni düzenleme: form etiketlerine düzene sokacak bir stil ekliyoruz */
         .form-container {
+            background-color: #212529;
             display: flex;
             gap: 10px;
         }
@@ -61,7 +67,7 @@ $result = $conn->query($sql);
         </form>
 
         <div class="table-container">
-            <table class="table table-bordered">
+            <table class="table table-bordered table-dark">
                 <thead>
                     <tr>
                         <th>Ad</th>

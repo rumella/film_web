@@ -1,3 +1,7 @@
+<?php
+session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,6 +9,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Film Uygulaması</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
@@ -14,6 +19,95 @@
             color: whitesmoke;
             background-color: black;
         }
+
+        #searchForm input,
+        #searchForm button {
+            height: 48px;
+            font-size: 1rem;
+            padding: 0 16px;
+            border-radius: 12px;
+            border: none;
+        }
+
+        #searchForm input {
+            flex: 1;
+            border-top-left-radius: 12px;
+            border-bottom-left-radius: 12px;
+            background-color: #1e1e1e;
+            color: #fff;
+        }
+
+        #movie_name {
+            background-color: #000;
+            /* siyah arka plan */
+            color: #fff;
+            /* beyaz yazı */
+        }
+
+        #movie_name::placeholder {
+            color: #aaa;
+            /* soluk beyaz */
+            font-weight: 300;
+        }
+
+        #searchForm input:focus {
+            box-shadow: none;
+            outline: none;
+        }
+
+        #searchForm input::placeholder {
+            color: #aaa;
+            font-weight: 300;
+        }
+
+        #searchSuggestions {
+            background-color: white;
+            color: black;
+            border-radius: 0 0 6px 6px;
+            position: absolute;
+            z-index: 999;
+            width: 100%;
+            max-height: 500px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        #searchSuggestions li {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            cursor: pointer;
+            border-bottom: 1px solid #ddd;
+        }
+
+        #searchSuggestions li:hover {
+            background-color: #f2f2f2;
+        }
+
+        #searchSuggestions img {
+            width: 50px;
+            height: 75px;
+            object-fit: cover;
+            margin-right: 10px;
+            border-radius: 4px;
+        }
+
+        .suggestion-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .suggestion-info strong {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .suggestion-info small {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+
 
         .carousel-inner,
         .carousel-item,
@@ -54,9 +148,17 @@
 
         #movieGrid .card {
             height: 100%;
-            background-color: black;
+            background-color: #2b2b2b;
             color: whitesmoke;
-            border: 2px solid gray;
+            transition: box-shadow 0.3s ease;
+            /* Geçiş efekti ekleyerek daha yumuşak bir animasyon sağla */
+        }
+
+        #movieGrid .card:hover {
+            box-shadow: 0 0 50px rgba(153, 23, 23, 0.7);
+            /* Gölgeyi tüm yönlere eşit şekilde dağıt */
+            transform: scale(1.05);
+            /* Hover sırasında kartın biraz büyümesini sağlar */
         }
 
         .card {
@@ -127,14 +229,89 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-top: 10px; /* Dropdown ile mesafe */
+            margin-top: 10px;
+            /* Dropdown ile mesafe */
+        }
+
+        .search-result-card {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 1rem;
+            background: linear-gradient(to right, #1a1a1a, #111);
+            border: 1px solid #333;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            color: #f5f5f5;
+            border-radius: 8px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .search-result-card:hover {
+            transform: scale(1.01);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+        }
+
+        .search-result-card img {
+            width: 90px;
+            height: 130px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #555;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+        }
+
+        .search-result-card .card-body {
+            padding: 0;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .search-result-card h6 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0 0 6px;
+            color: #fff;
+        }
+
+        .search-result-card p {
+            font-size: 0.85rem;
+            margin: 2px 0;
+            color: #bbb;
+        }
+
+        .footer a:hover {
+            color: #0dcaf0 !important;
+        }
+
+        /* Yukarı Çık Butonu */
+        #scrollTopBtn {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            padding: 0;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        /* Tıklayınca döndür */
+        #scrollTopBtn.clicked {
+            transform: rotate(360deg);
         }
     </style>
 </head>
 
 <body>
     <?php
-    session_start();
     if (!isset($_SESSION['user_id'])) {
         $navbarTitle = "Ana Sayfa";
         $navbarItems = ['login', 'register'];
@@ -146,6 +323,18 @@
     }
     ?>
 
+    <div class="container my-4 position-relative">
+        <div class="mb-3 text-start text-white">
+            <h1 class="display-3 fw-bold">Hoş Geldiniz!</h1>
+            <p class="fs-5 fw-light">Keşfedilecek milyonlarca film, TV şovu ve kişi. Şimdi keşfedin.</p>
+        </div>
+        <form id="searchForm" class="d-flex w-110 shadow-sm border rounded-3 overflow-hidden">
+
+            <input type="text" id="movie_name" class="form-control border-0 px-3 py-1 small" placeholder="Film adı yazın...">
+        </form>
+        <ul id="searchSuggestions" class="list-group mt-1"></ul>
+        <div id="movie_results" class="row mt-4"></div>
+    </div>
     <!-- Carousel -->
     <div class="container my-4">
         <div id="popularCarousel" class="carousel slide" data-bs-ride="carousel">
@@ -223,6 +412,35 @@
             <button id="nextBtn" class="btn btn-primary">Next</button>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-5 py-4 bg-dark text-light border-top">
+        <div class="container text-center">
+            <div class="mb-2">
+                <a href="https://twitter.com/kullaniciadi" target="_blank" class="text-light me-3" title="Twitter">
+                    <i class="bi bi-twitter fs-5"></i>
+                </a>
+                <a href="https://instagram.com/kullaniciadi" target="_blank" class="text-light me-3" title="Instagram">
+                    <i class="bi bi-instagram fs-5"></i>
+                </a>
+                <a href="https://github.com/kullaniciadi" target="_blank" class="text-light me-3" title="GitHub">
+                    <i class="bi bi-github fs-5"></i>
+                </a>
+                <a href="https://linkedin.com/in/kullaniciadi" target="_blank" class="text-light" title="LinkedIn">
+                    <i class="bi bi-linkedin fs-5"></i>
+                </a>
+            </div>
+            <div>
+                <small>&copy; <?php echo date('Y'); ?> Film Uygulaması • Tüm Hakları Saklıdır</small>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Yukarı Çık Butonu -->
+    <button id="scrollTopBtn" type="button" title="Yukarı çık"
+        class="btn btn-secondary d-flex align-items-center justify-content-center">
+        <i class="bi bi-arrow-up"></i>
+    </button>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

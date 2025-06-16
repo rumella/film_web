@@ -115,14 +115,14 @@ foreach ($comments as $comment) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f0f0f0;
-            color: #333;
+            background-color:rgb(0, 0, 0);
+            color: whitesmoke;
             font-family: Arial, sans-serif;
         }
 
         .search-area,
         .comment-box {
-            background: #fff;
+            background: #1c1c1c;
             padding: 20px;
             margin: 10px auto;
             width: 90%;
@@ -195,7 +195,6 @@ foreach ($comments as $comment) {
 
             .search-area,
             .comment-box {
-                background: #fff;
                 padding: 20px;
                 margin: 10px auto;
                 width: 100%;
@@ -343,7 +342,7 @@ foreach ($comments as $comment) {
                             <?php foreach ($allReplies[$comment['id']] as $reply): ?>
                                 <div class="border-start ps-3 mb-2">
                                     <p class="mb-1"><strong><?php echo htmlspecialchars($reply['name']); ?>:</strong> <?php echo htmlspecialchars($reply['reply']); ?></p>
-                                    <small class="text-muted"><?php echo date('d.m.Y H:i', strtotime($reply['created_at'])); ?></small>
+                                    <small class="text-light"><?php echo date('d.m.Y H:i', strtotime($reply['created_at'])); ?></small>
                                 </div>
                             <?php endforeach; ?>
                         </div>
