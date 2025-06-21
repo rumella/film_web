@@ -58,3 +58,21 @@ html, body {
     margin: 5px 0;
     font-size: 1em;
 }
+
+#watched_movies .movie .remove-movie-btn {
+    color: whitesmoke;
+    background-color: rgb(202, 49, 63);
+    border-radius: 5px;
+}
+
+#watched_movies .movie .comment-movie-btn {
+    color: whitesmoke;
+    background-color: #007bff;
+    border-radius: 5px;
+}
+
+#movie_results .movie-grid-item button {
+    border-radius: 5px;
+    background-color: #49c549;
+    color: whitesmoke;
+}

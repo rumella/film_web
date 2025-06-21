@@ -159,7 +159,7 @@ input, select {
 @media (max-width: 768px) {
     .photo-frame {
         width: 100%; /* Fotoğraf alanını ekran genişliğine göre ayarla */
-        height: 200px; /* Fotoğraf alanı yüksekliğini belirle */
+        height: 500px; /* Fotoğraf alanı yüksekliğini belirle */
     }
 
     .left-column,

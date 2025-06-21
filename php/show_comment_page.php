@@ -133,14 +133,14 @@ foreach ($comments as $comment) {
         #movieSuggestions div {
             cursor: pointer;
             padding: 5px;
-            background-color: #f8f8f8;
+            background-color: #1c1c1c;
             margin: 2px 0;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
 
         #movieSuggestions div:hover {
-            background-color: #e0e0e0;
+            background-color: #2b2b2b;
         }
 
         .movie {
@@ -182,7 +182,7 @@ foreach ($comments as $comment) {
             bottom: 10px;
             right: 10px;
             font-size: 0.9rem;
-            background-color: rgba(255, 255, 255, 0.85);
+            background-color: #2b2b2b;
             padding: 4px 8px;
             border-radius: 4px;
             z-index: 1;
@@ -266,7 +266,7 @@ foreach ($comments as $comment) {
                 bottom: 0px;
                 right: 0px;
                 font-size: 0.9rem;
-                background-color: rgba(255, 255, 255, 0.85);
+                background-color: #2b2b2b;
                 padding: 4px 0px;
                 border-radius: 4px;
                 z-index: 1;
@@ -359,7 +359,7 @@ foreach ($comments as $comment) {
                         </div>
                     <?php endif; ?>
                 </div>
-                <div class="comment-date text-muted">
+                <div class="comment-date">
                     <?php echo date('d.m.Y H:i', strtotime($comment['created_at'])); ?>
                 </div>
             </div>

@@ -47,16 +47,86 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comment_id'], $_POST[
 
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yorumu Düzenle</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1c1c1c;
+            color: whitesmoke;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            background-color: #2b2b2b;
+            color: whitesmoke;
+            padding: 20px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .card h2 {
+            text-align: center;
+        }
+
+        .card textarea {
+            width: 100%;
+            resize: none;
+            background-color: #333;
+            color: whitesmoke;
+            border: 1px solid #444;
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        .card button {
+            width: 100%;
+            background-color: #007bff;
+            color: whitesmoke;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        .card button:hover {
+            background-color: #0056b3;
+        }
+
+        @media (max-width: 576px) {
+            .card {
+                padding: 15px;
+                width: 90%;
+                max-width: none;
+            }
+        }
+    </style>
 </head>
+
 <body>
-    <h2>Yorumu Düzenle</h2>
-    <form method="POST" action="edit_comment.php">
-        <input type="hidden" name="comment_id" value="<?php echo htmlspecialchars($comment_id); ?>">
-        <textarea name="comment" rows="5" cols="50"><?php echo htmlspecialchars($commentText); ?></textarea><br>
-        <button type="submit">Kaydet</button>
-    </form>
+
+    <div class="card">
+        <h2>Yorumu Düzenle</h2>
+        <form method="POST" action="edit_comment.php">
+            <input type="hidden" name="comment_id" value="<?php echo htmlspecialchars($comment_id); ?>">
+            <textarea name="comment" rows="5"><?php echo htmlspecialchars($commentText); ?></textarea><br>
+            <button type="submit">Kaydet</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
+
 </html>
+

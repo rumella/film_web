@@ -49,7 +49,7 @@ if (!isset($_SESSION['user_id'])) {
     <meta http-equiv="refresh" content="3;url=show_comment_page.php">
     <style>
         body {
-            background-color: #f8f9fa;
+            background-color: #1c1c1c;
             display: flex;
             justify-content: center;
             align-items: center;

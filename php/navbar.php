@@ -40,7 +40,15 @@ $navbarItems = $navbarItems ?? [];
     }
 
     .navbar input {
-        padding: 0.3rem;
+        padding: 0.1rem;
+        border: 1px solid whitesmoke;
+        border-radius: 5px;
+    }
+
+    .navbar input:focus {
+        outline: none;
+        border: 1px solid whitesmoke;
+        box-shadow: none;
     }
 
     .navbar-title h3 {
